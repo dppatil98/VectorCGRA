@@ -1,0 +1,131 @@
+
+##script for a top module CGRAKingMeshRTL_3b1d4bddcd1ed8df
+
+setMultiCpuUsage -acquireLicense 6 -localCpu max -cpuPerRemoteHost 6
+#modify floorplan according to core utilisation as per your requirement 
+
+floorPlan -site coreSite -d 700 700  20 20 20 20 
+
+globalNetConnect VDD -type pgpin -pin VDD -inst * -module {}
+globalNetConnect VSS -type pgpin -pin VSS -inst * -module {}
+
+foreach x [dbget -p2 top.insts.cell.baseClass block ] {
+  puts " placeInstance [dbget $x.name] {[dbget $x.box_llx] [dbget $x.box_lly]} [dbget $x.orient] -fixed"
+}
+
+#MACRO LOCATIONS
+ placeInstance tile__0 {172.708 3027.364} R0 -fixed
+ placeInstance tile__1 {1114.28 3027.364} R0 -fixed
+ placeInstance tile__2 {2138.128 2984.312} R0 -fixed
+ placeInstance tile__3 {3044.788 2998.848} R0 -fixed
+ placeInstance tile__4 {170.512 2150.068} R0 -fixed
+ placeInstance tile__5 {1102.564 2130.492} R0 -fixed
+ placeInstance tile__6 {2126.46 2130.496} R0 -fixed
+ placeInstance tile__7 {3052.492 2122.968} R0 -fixed
+ placeInstance tile__8 {194.344 1352.384} R0 -fixed
+ placeInstance tile__9 {1147.948 1355.084} R0 -fixed
+ placeInstance tile__10 {2119.148 1355.084} R0 -fixed
+ placeInstance tile__11 {3052.704 1362.612} R0 -fixed
+ placeInstance tile__12 {161.912 534.504} R0 -fixed
+ placeInstance tile__13 {1125.58 534.504} R0 -fixed
+ placeInstance tile__14 {2134.42 557.092} R0 -fixed
+ placeInstance tile__15 {3054.248 548.236} R0 -fixed
+
+
+addWellTap -cell TAPCELL_ASAP7_75t_R -cellInterval 70 -inRowOffset 2 -prefix WELLTAP
+addRing -nets {VDD VSS }   -around default_power_domain -center 1 -width 1.224 -spacing 0.5 -layer {left M3 right M3 bottom M2 top M2} 
+sroute -connect { blockPin padPin padRing corePin floatingStripe } -nets {VDD VSS } -layerChangeRange { M1 M3 } -blockPinTarget { nearestTarget } -padPinPortConnect { allPort oneGeom } -padPinTarget { nearestTarget } -corePinTarget { firstAfterRowEnd } -floatingStripeTarget { blockring padring ring stripe ringpin blockpin followpin } -allowJogging 1 -crossoverViaLayerRange { M1 Pad } -allowLayerChange 1 -blockPin useLef -targetViaLayerRange { M1 Pad }
+setPinAssignMode -pinEditInBatch true
+##INPUT
+set mat_input [get_ports -filter "direction ==in"]
+editPin -fixedPin 1 -fixOverlap 1 -spreadDirection clockwise -edge 1 -layer 3  -snap TRACK  -spreadType EDGE  -pin  [get_object_name $mat_input]
+##OUTPUT
+set mat_output [get_ports -filter "direction ==out"]
+editPin -fixedPin 1 -fixOverlap 1 -spreadDirection clockwise -edge 3  -layer 3   -snap TRACK  -spreadType EDGE  -pin  [get_object_name $mat_output]
+setPinAssignMode -pinEditInBatch false
+getPinAssignMode -pinEditInBatch -quiet
+
+
+
+setPlaceMode -place_global_timing_effort medium
+setPlaceMode -place_global_uniform_density true
+#setPlaceMode -place_global_place_io_pins true
+#setPlaceMode -place_global_reorder_scan true
+#setPlaceMode -place_detail_wire_length_opt_effort high 
+setPlaceMode -place_global_cong_effort auto 
+#setPlaceMode -place_global_clock_gate_aware true 
+setPlaceMode -place_global_module_aware_spare true 
+#setPlaceMode -clock_power_driven {true}
+setPlaceMode -place_detail_check_route true
+setPlaceMode -place_detail_use_check_drc true
+#setPlaceMode -place_global_module_padding
+setPlaceMode -place_design_refine_place true
+
+place_opt_design 
+
+setNanoRouteMode -drouteMinimizeLithoEffectOnLayer { f t t t t t t t t t} -routeTopRoutingLayer 5 -routeBottomRoutingLayer 1 -routeWithViaInPin true
+setRouteMode -earlyGlobalMaxRouteLayer 5 -earlyGlobalMinRouteLayer 1
+set_ccopt_property buffer_cells {BUFx10_ASAP7_75t_R BUFx12_ASAP7_75t_R BUFx12f_ASAP7_75t_R  BUFx24_ASAP7_75t_R BUFx2_ASAP7_75t_R BUFx3_ASAP7_75t_R BUFx4_ASAP7_75t_R BUFx5_ASAP7_75t_R BUFx4f_ASAP7_75t_R BUFx6f_ASAP7_75t_R BUFx8_ASAP7_75t_R HB1xp67_ASAP7_75t_R HB2xp67_ASAP7_75t_R}
+
+setOptMode -fixFanoutLoad true
+
+setAnalysisMode -analysisType onchipvariation
+set_ccopt_property max_fanout 20
+set_ccopt_property target_max_trans 100ps 
+set_ccopt_property target_skew 30ps
+ set_ccopt_property -pin tile__0/clk[0] sink_type stop
+ set_ccopt_property -pin tile__1/clk[0] sink_type stop
+ set_ccopt_property -pin tile__2/clk[0] sink_type stop
+ set_ccopt_property -pin tile__3/clk[0] sink_type stop
+ set_ccopt_property -pin tile__4/clk[0] sink_type stop
+ set_ccopt_property -pin tile__5/clk[0] sink_type stop
+ set_ccopt_property -pin tile__6/clk[0] sink_type stop
+ set_ccopt_property -pin tile__7/clk[0] sink_type stop
+ set_ccopt_property -pin tile__8/clk[0] sink_type stop
+ set_ccopt_property -pin tile__9/clk[0] sink_type stop
+ set_ccopt_property -pin tile__10/clk[0] sink_type stop
+ set_ccopt_property -pin tile__11/clk[0] sink_type stop
+ set_ccopt_property -pin tile__12/clk[0] sink_type stop
+ set_ccopt_property -pin tile__13/clk[0] sink_type stop
+ set_ccopt_property -pin tile__14/clk[0] sink_type stop
+ set_ccopt_property -pin tile__15/clk[0] sink_type stop
+setOptMode -fixFanoutLoad true
+setOptMode -fixDrc 
+optDesign -preCTS
+#create_ccopt_flexible_htree
+#synthesize_ccopt_flexible_htrees
+ccopt_design -outDir ./cts/
+
+timeDesign -postCTS -expandedViews -outDir ./cts/timing/
+report_ccopt_clock_trees -filename ./cts/clock_trees.rpt 
+report_ccopt_skew_groups -filename ./cts/skew_groups.rpt
+optDesign -postCTS
+
+
+
+setNanoRouteMode -drouteMinimizeLithoEffectOnLayer { t t t t t t t t t t} -routeTopRoutingLayer 5 -routeBottomRoutingLayer 1 -routeWithViaInPin true
+setNanoRouteMode -routeWithViaInPin true -routeDesignFixClockNets true -routeTopRoutingLayer 5 -routeBottomRoutingLayer 1 
+setNanoRouteMode -quiet -routeWithTimingDriven 1
+setNanoRouteMode -quiet -drouteEndIteration 19
+setNanoRouteMode -quiet -routeWithTimingDriven true
+setNanoRouteMode -quiet -routeWithSiDriven false
+setNanoRouteMode –droutePostRouteSwapVia none
+#setNanoRouteMode  -drouteSearchAndRepair true
+routeDesign -globalDetail 
+
+
+setOptMode -layerAwareOpt
+setOptMode -allEndPoints true
+setAnalysisMode -analysisType onchipvariation
+
+optDesign -postroute
+
+verifyConnectivity
+verify_drc
+
+rcOut -spf cgra_top.spf
+rcOut -spef cgra_top.spef
+saveNetlist cgra_top.apr.v -excludeLeafCell -excludeCellInst {FILLERxp5_ASAP7_75t_R FILLER_ASAP7_75t_R}
+
+saveNetlist cgra_top.v -includePowerGround -excludeLeafCell -excludeCellInst {FILLERxp5_ASAP7_75t_R FILLER_ASAP7_75t_R}
+
